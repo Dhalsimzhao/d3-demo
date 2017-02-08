@@ -42,12 +42,17 @@ window.onload = function () {
   // draw heat map
   function getDatas() {
     var datas = [];
-    var week, day;
+    var week, day, now;
+    now = new Date();
+    var restWeekdays = 6 - now.getDay();
+    var endTime = new Date(now.getTime() + (restWeekdays+1)*24*60*60*1000);
+    var endTimeStamp = new Date(endTime.getFullYear(), endTime.getMonth(), endTime.getDate()).getTime();
+    if (now.getDay()) {}
     for (var i = 0; i < 26*7; i++) {
       week = Math.floor(i/7);
       day = i % 7;
       datas.push({
-        date: new Date(Date.now() - 60*60*24 * (26*7 - (week*7 + day))*1000),
+        date: new Date(endTimeStamp - 60*60*24 * (26*7 - (week*7 + day))*1000),
         week: week,
         day: day,
         value: Math.random()
@@ -77,24 +82,28 @@ window.onload = function () {
       return data.day * 15;
     })
     .style('fill', function (data) {
-      return getColor(data.value);
+      return data.date > Date.now() ? '#fff' : getColor(data.value)
+    })
+    .style('stroke', (data) => {
+      return data.date > Date.now() ? '#eee' : 'none'
     })
     .on('mouseover', (data) => {
       tooltip.style('visibility', 'visible');
       tooltip.html(() => {
-        return data.date;
+        var date = data.date;
+        return days[date.getDay()] + ' ' + [date.getMonth()+1, date.getDate(), date.getFullYear()].join('/');
       });
     })
     .on('mousemove', (data) => {
-      tooltip.style('left', d3.event.pageX)
-             .style('top', d3.event.pageY)
+      tooltip.style('left', d3.event.pageX+'px')
+             .style('top', d3.event.pageY+'px')
     })
     .on('mouseout', (data) => {
       tooltip.style('visibility', 'hidden')
     })
 
   var tooltip = createTooltip();
-
+  window.tooltip = tooltip;
   function createTooltip() {
     return d3.select('body').append('div')
               .attr('class', 'tooltip')
