@@ -79,4 +79,25 @@ window.onload = function () {
     .style('fill', function (data) {
       return getColor(data.value);
     })
+    .on('mouseover', (data) => {
+      tooltip.style('visibility', 'visible');
+      tooltip.html(() => {
+        return data.date;
+      });
+    })
+    .on('mousemove', (data) => {
+      tooltip.style('left', d3.event.pageX)
+             .style('top', d3.event.pageY)
+    })
+    .on('mouseout', (data) => {
+      tooltip.style('visibility', 'hidden')
+    })
+
+  var tooltip = createTooltip();
+
+  function createTooltip() {
+    return d3.select('body').append('div')
+              .attr('class', 'tooltip')
+              .style('visibility', 'hidden')
+  }
 }
